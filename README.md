@@ -1,18 +1,18 @@
-# 项目
+# Nginx
 
-[![编译状态](https://github.ruijc.com:20443/api/badges/pangum/pangu/status.svg)](https://github.ruijc.com:20443/pangum/pangu)
-[![Golang质量](https://goreportcard.com/badge/github.com/pangum/pangu)](https://goreportcard.com/report/github.com/pangum/pangu)
-![版本](https://img.shields.io/github/go-mod/go-version/pangum/pangu)
-![仓库大小](https://img.shields.io/github/repo-size/pangum/pangu)
+[![编译状态](https://github.ruijc.com:20443/api/badges/dockerat/nginx/status.svg)](https://github.ruijc.com:20443/dockerat/nginx)
+[![Golang质量](https://goreportcard.com/badge/github.com/dockerat/nginx)](https://goreportcard.com/report/github.com/dockerat/nginx)
+![版本](https://img.shields.io/github/go-mod/go-version/dockerat/nginx)
+![仓库大小](https://img.shields.io/github/repo-size/dockerat/nginx)
 ![Docker镜像版本](https://img.shields.io/docker/v/storezhang/ddns)
 ![Docker镜像大小](https://img.shields.io/docker/image-size/storezhang/ddns)
-![最后提交](https://img.shields.io/github/last-commit/pangum/pangu)
-![授权协议](https://img.shields.io/github/license/pangum/pangu)
-![语言个数](https://img.shields.io/github/languages/count/pangum/pangu)
-![最佳语言](https://img.shields.io/github/languages/top/pangum/pangu)
-![星星个数](https://img.shields.io/github/stars/pangum/pangu?style=social)
+![最后提交](https://img.shields.io/github/last-commit/dockerat/nginx)
+![授权协议](https://img.shields.io/github/license/dockerat/nginx)
+![语言个数](https://img.shields.io/github/languages/count/dockerat/nginx)
+![最佳语言](https://img.shields.io/github/languages/top/dockerat/nginx)
+![星星个数](https://img.shields.io/github/stars/dockerat/nginx?style=social)
 
-项目介绍
+`Nginx`基础镜像
 
 ## 捐助
 
@@ -22,4 +22,4 @@
 ## 感谢Jetbrains
 
 本项目通过`Jetbrains开源许可IDE`编写源代码，特此感谢
-[![Jetbrains图标](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png)](https://www.jetbrains.com/?from=pangum/pangu)
+[![Jetbrains图标](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png)](https://www.jetbrains.com/?from=dockerat/nginx)
