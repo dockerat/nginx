@@ -1,0 +1,80 @@
+kind: secret
+name: feishu_id
+get:
+    path: secrets
+    name: feishu_id
+---
+kind: secret
+name: feishu_secret
+get:
+    path: secrets
+    name: feishu_secret
+---
+kind: secret
+name: password_droneci
+get:
+    path: secrets
+    name: password_droneci
+---
+
+
+
+kind: pipeline
+type: docker
+name: default
+
+clone:
+    disable: true
+
+environment:
+    NAME: nginx
+    DOCKER_REGISTRY: registry.sichuancredit.cn
+    DOCKER_REPOSITORY: devops/nginx
+    TAG: 0.0.$${DRONE_BUILD_NUMBER}
+
+steps:
+    - name: 取码
+      image: ccr.ccs.tencentyun.com/dronestock/git
+      pull: always
+
+    - name: 推包
+      image: ccr.ccs.tencentyun.com/dronestock/docker
+      pull: always
+      privileged: true
+      when:
+          event:
+              exclude:
+                  - pull_request
+      environment:
+          PASSWORD_HARBOR:
+              from_secret: password_droneci
+      settings:
+          repository: $${DOCKER_REPOSITORY}
+          tag: $${TAG}
+          registry:
+              hostname: $${DOCKER_REGISTRY}
+              username: droneci
+              password: $${PASSWORD_HARBOR}
+
+    - name: 通知
+      image: ccr.ccs.tencentyun.com/dronestock/feishu
+      pull: always
+      when:
+          status:
+              - success
+              - failure
+      settings:
+          notfound:
+              id: wen.li
+          id:
+              from_secret: feishu_id
+          secret:
+              from_secret: feishu_secret
+
+volumes:
+    - name: docker
+      host:
+          path: /var/lib/cache/docker
+    - name: node
+      host:
+          path: /var/lib/cache/node
