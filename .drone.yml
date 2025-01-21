@@ -64,8 +64,6 @@ steps:
               - success
               - failure
       settings:
-          notfound:
-              id: wen.li
           id:
               from_secret: feishu_id
           secret:
