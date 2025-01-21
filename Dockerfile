@@ -7,3 +7,6 @@ COPY docker /
 ENV WEBROOT /usr/share/nginx/html
 WORKDIR ${WEBROOT}
 VOLUME ${WEBROOT}
+
+# 暴露端口
+EXPOSE 80
