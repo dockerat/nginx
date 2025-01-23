@@ -17,9 +17,9 @@ server {
 		add_header Cache-Control max-age-no-cache;
 	}
 
-	location ~* .(css|js|png|jpg|jpeg|gif|gz|svg|mp4|ogg|ogv|webm|htc|xml|woff)$ { # 静态文件默认缓存1小时
+	location ~* .(css|js|png|jpg|jpeg|gif|gz|svg|mp4|ogg|ogv|webm|htc|xml|woff)$ {
 		access_log off;
-		add_header Cache-Control max-age-${CACHE_STATIC_TIME};
+		add_header Cache-Control max-age-${CACHE_STATIC_TIME}; # 静态文件缓存
 	}
 
 	# 自动跳转
