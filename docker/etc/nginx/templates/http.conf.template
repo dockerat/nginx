@@ -4,7 +4,7 @@ server {
 	location / {
 		root ${WEBROOT};
 		index ${INDEX};
-		try_files $uri $uri/ /index.html; # 解决Vue等应用页面刷新时报404错误
+		try_files $uri $uri/ /${INDEX}; # 解决Vue等应用页面刷新时报404错误
 
 		# 自动增加后缀
 		if (!-e $request_filename) {
