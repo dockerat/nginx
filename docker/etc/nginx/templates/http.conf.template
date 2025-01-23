@@ -1,4 +1,4 @@
-server{
+server {
 	listen ${HTTP_PORT};
 	server_name ${HOSTNAME};
 	location / {
