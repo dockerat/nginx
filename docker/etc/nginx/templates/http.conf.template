@@ -1,9 +1,9 @@
 server{
-	listen 80;
-	server_name localhost;
+	listen ${HTTP_PORT};
+	server_name ${HOSTNAME};
 	location / {
-		root /usr/share/nginx/html;
-		index index.html;
+		root ${WEBROOT};
+		index ${INDEX};
 
 		# 自动增加后缀
 		if (!-e $request_filename) {
@@ -14,12 +14,12 @@ server{
 
 	location ~* .(html)$ { # 禁用缓存
 		access_log off;
-		add_header Cache-Control max-age=no-cache;
+		add_header Cache-Control max-age-no-cache;
 	}
 
 	location ~* .(css|js|png|jpg|jpeg|gif|gz|svg|mp4|ogg|ogv|webm|htc|xml|woff)$ { # 静态文件默认缓存1小时
 		access_log off;
-		add_header Cache-Control max-age=360000;
+		add_header Cache-Control max-age-${CACHE_STATIC_TIME};
 	}
 
 	# 自动跳转
