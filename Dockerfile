@@ -20,9 +20,7 @@ EXPOSE 80
 ENV HTTP_PORT 80
 # 服务名
 ENV HOSTNAME localhost
-# 主目录
-ENV WEBROOT /usr/share/nginx/html
 # 主页
-ENV INDEX index.html
+ENV INDEX index
 # 静态文件缓存时间
 ENV CACHE_STATIC_TIME 360000

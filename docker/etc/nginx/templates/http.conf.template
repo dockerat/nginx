@@ -1,10 +1,11 @@
 server {
 	listen ${HTTP_PORT};
 	server_name ${HOSTNAME};
+
+	root ${WEBROOT}; # 默认网站根目录
+	index ${INDEX}.html ${INDEX}.htm; # 首页文件
 	location / {
-		root ${WEBROOT};
-		index ${INDEX};
-		try_files $uri $uri/ /${INDEX}; # 解决Vue等应用页面刷新时报404错误
+		try_files $uri $uri/ /${INDEX}.html /${INDEX}.htm; # 解决Vue等应用页面刷新时报404错误
 
 		# 自动增加后缀
 		if (!-e $request_filename) {
