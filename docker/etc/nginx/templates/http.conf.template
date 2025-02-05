@@ -22,7 +22,4 @@ server {
 		access_log off;
 		add_header Cache-Control max-age-${CACHE_STATIC_TIME}; # 静态文件缓存
 	}
-
-	# 自动跳转
-	rewrite ^(.*)$ https://$host$1 permanent;
 }
