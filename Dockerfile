@@ -20,6 +20,8 @@ EXPOSE 80
 ENV HTTP_PORT 80
 # 服务名
 ENV HOSTNAME localhost
+# 主目录
+ENV WEBROOT /usr/share/nginx/html
 # 主页
 ENV INDEX index.html
 # 静态文件缓存时间
