@@ -21,6 +21,6 @@ ENV HTTP_PORT 80
 # 服务名
 ENV HOSTNAME localhost
 # 主页
-ENV INDEX index
+ENV INDEX index.html
 # 静态文件缓存时间
 ENV CACHE_STATIC_TIME 360000
