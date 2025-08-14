@@ -1,4 +1,4 @@
-FROM nginx:1.29.0-alpine-slim
+FROM nginx:1.29.1-alpine-slim
 
 
 # 基础配置文件
