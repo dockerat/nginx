@@ -56,12 +56,10 @@ steps:
     settings:
       repository: $${DOCKER_REPOSITORY}
       tag: $${TAG}
-      registries:
-        - username: storezhang
-          password: $${PASSWORD_DOCKER}
-        - hostname: ccr.ccs.tencentyun.com
-          username: "100044063725"
-          password: $${PASSWORD_CCR}
+      registry:
+        hostname: ccr.ccs.tencentyun.com
+        username: "100044063725"
+        password: $${PASSWORD_CCR}
 
   - name: 通知
     image: ccr.ccs.tencentyun.com/dronestock/feishu
