@@ -2,7 +2,7 @@ kind: secret
 name: password_ccr
 get:
   path: secrets
-  name: password_ccr
+  name: password_ccr_yaothink_zongliang
 ---
 
 kind: secret
@@ -32,7 +32,7 @@ clone:
 environment:
   NAME: nginx
   DOCKER_REGISTRY: ccr.ccs.tencentyun.com
-  DOCKER_REPOSITORY: storezhang/nginx
+  DOCKER_REPOSITORY: dockerat/nginx
   TAG: 0.0.$${DRONE_BUILD_NUMBER}
 
 
@@ -60,17 +60,13 @@ steps:
         - username: storezhang
           password: $${PASSWORD_DOCKER}
         - hostname: ccr.ccs.tencentyun.com
-          username: "160290688"
+          username: 100044063725
           password: $${PASSWORD_CCR}
           required: true
 
   - name: 通知
     image: ccr.ccs.tencentyun.com/dronestock/feishu
     pull: always
-    when:
-      status:
-        - success
-        - failure
     settings:
       id:
         from_secret: feishu_id
