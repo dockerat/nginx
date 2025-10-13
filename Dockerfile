@@ -5,7 +5,7 @@ LABEL author="storezhang<华寅>" \
     email="storezhang@gmail.com" \
     qq="160290688" \
     wechat="storezhang" \
-    description="Nginx基础镜像"
+    description="Nginx基础镜像，提供基础配置"
 
 
 # 复制文件
