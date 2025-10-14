@@ -1,4 +1,4 @@
-FROM ccr.ccs.tencentyun.com/dockerat/alpine:3.20.1
+FROM nginx:1.29.2-alpine-slim
 
 
 LABEL author="storezhang<华寅>" \
@@ -10,21 +10,3 @@ LABEL author="storezhang<华寅>" \
 
 # 复制文件
 COPY docker /
-
-
-RUN set -ex \
-    \
-    \
-    \
-    && apk update \
-    && apk --no-cache upgrade \
-    # 安装Nginx
-    && apk add --no-cache nginx \
-    \
-    \
-    \
-    && rm -rf /var/cache/apk/*
-
-
-# 执行命令
-ENTRYPOINT [ "nginx", "-g", "daemon off;" ]
