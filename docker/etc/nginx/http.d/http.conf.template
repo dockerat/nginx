@@ -1,0 +1,21 @@
+server {
+	listen ${HTTP_PORT};
+	server_name ${HOSTNAME};
+
+	root ${ROOT}; # 默认网站根目录
+	index ${INDEX}; # 首页文件
+
+	location / {
+		try_files $uri /${INDEX}; # 解决Vue/React等单页面应用页面刷新时报404错误
+	}
+
+	location ~* .(html)$ { # 首页禁用缓存
+		access_log off;
+		add_header Cache-Control max-age-no-cache;
+	}
+
+	location ~* .(css|js|png|jpg|jpeg|gif|gz|svg|mp4|ogg|ogv|webm|htc|xml|woff)$ {
+		access_log off;
+		add_header Cache-Control max-age-${CACHE_STATIC_TIME}; # 静态文件缓存
+	}
+}
