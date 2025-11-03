@@ -12,8 +12,8 @@ LABEL author="storezhang<华寅>" \
 COPY docker /
 
 # 定义网页目录
-ENV ROOT /usr/share/nginx/html
-VOLUME ${ROOT}
+ENV WEBSITE /usr/share/nginx/html
+VOLUME ${WEBSITE}
 
 # 暴露端口
 EXPOSE 80

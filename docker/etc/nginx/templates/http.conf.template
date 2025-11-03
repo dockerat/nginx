@@ -2,7 +2,7 @@ server {
 	listen ${HTTP_PORT};
 	server_name ${HOSTNAME};
 
-	root ${ROOT}; # 默认网站根目录
+	root ${WEBSITE}; # 默认网站根目录
 	index ${INDEX}; # 首页文件
 
 	location / {
