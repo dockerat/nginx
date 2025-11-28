@@ -58,7 +58,7 @@ steps:
       tag: $${TAG}
       registry:
         hostname: ccr.ccs.tencentyun.com
-        username: "100044063725"
+        username: "160290688"
         password: $${PASSWORD_CCR}
 
   - name: 通知
