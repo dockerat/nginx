@@ -11,7 +11,7 @@ server {
 
 	location ~* .(html)$ { # 首页禁用缓存
 		access_log off;
-		add_header Cache-Control max-age-no-cache;
+		add_header Cache-Control max-age=300;
 	}
 
 	location ~* .(css|js|png|jpg|jpeg|gif|gz|svg|mp4|ogg|ogv|webm|htc|xml|woff)$ {
