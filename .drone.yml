@@ -61,15 +61,6 @@ steps:
         username: "160290688"
         password: $${PASSWORD_CCR}
 
-  - name: 通知
-    image: ccr.ccs.tencentyun.com/dronestock/feishu
-    pull: always
-    settings:
-      id:
-        from_secret: feishu_id
-      secret:
-        from_secret: feishu_secret
-
 
 volumes:
   - name: docker
