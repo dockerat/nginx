@@ -2,7 +2,7 @@ kind: secret
 name: password_ccr
 get:
   path: secrets
-  name: password_ccr_yaothink_zongliang
+  name: password_ccr_ruijc_zongliang
 ---
 
 kind: secret
