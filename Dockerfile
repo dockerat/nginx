@@ -1,4 +1,7 @@
-FROM --platform=$BUILDPLATFORM swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/nginx:1.29.2-alpine-slim AS builder
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+
+FROM --platform=$TARGETPLATFORM swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/nginx:1.29.2-alpine-slim AS builder
 
 ARG VERSION=1
 COPY docker /docker
@@ -7,7 +10,7 @@ RUN chmod +x /docker/usr/bin/log
 RUN chmod +x /docker/docker-entrypoint.d/*
 
 
-FROM --platform=$BUILDPLATFORM swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/nginx:1.29.2-alpine-slim
+FROM --platform=$TARGETPLATFORM swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/nginx:1.29.2-alpine-slim
 
 LABEL author="storezhang<华寅>" \
     email="storezhang@gmail.com" \
