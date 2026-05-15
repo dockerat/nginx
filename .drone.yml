@@ -56,6 +56,11 @@ steps:
     settings:
       repository: $${DOCKER_REPOSITORY}
       tag: $${TAG}
+      platforms:
+        - arch: amd64
+        - arch: arm64
+        - arch: arm
+          variant: v7
       registry:
         hostname: ccr.ccs.tencentyun.com
         username: "160290688"
