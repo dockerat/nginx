@@ -6,7 +6,7 @@ RUN wget --quiet --output-document=/docker/usr/bin/log https://gitee.com/storezh
 RUN chmod +x /docker/usr/bin/log
 
 
-FROM swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/nginx:1.29.2-alpine-slim
+FROM nginx:1.29.2-alpine-slim
 
 LABEL author="storezhang<华寅>" \
     email="storezhang@gmail.com" \
