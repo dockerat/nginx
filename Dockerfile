@@ -1,6 +1,5 @@
-FROM swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/nginx:1.29.2-alpine-slim AS builder
+FROM --platform=$BUILDPLATFORM swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/nginx:1.29.2-alpine-slim AS builder
 
-ARG TARGETPLATFORM
 ARG VERSION=1
 COPY docker /docker
 RUN wget --quiet --output-document=/docker/usr/bin/log https://gitee.com/storezhang/script/raw/main/core/log.sh
@@ -8,7 +7,7 @@ RUN chmod +x /docker/usr/bin/log
 RUN chmod +x /docker/docker-entrypoint.d/*
 
 
-FROM swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/nginx:1.29.2-alpine-slim
+FROM --platform=$BUILDPLATFORM swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/nginx:1.29.2-alpine-slim
 
 LABEL author="storezhang<华寅>" \
     email="storezhang@gmail.com" \
