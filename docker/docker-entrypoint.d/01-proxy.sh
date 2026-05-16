@@ -2,11 +2,11 @@
 
 CODE=0
 EXIT=false
-OUTPUT_CONF="/etc/nginx/stream.d/auto.conf"
+OUTPUT_CONF="/etc/nginx/proxy.d/auto.conf"
 log info 开始生成配置文件 "output=${OUTPUT_CONF}"
 
-# 通过扫描所有以STREAM_开头且以_PORT结尾的变量，自动抓取所有的服务前缀
-PREFIXES=$(env | grep '^STREAM_.*_PORT=' | cut -d'=' -f1 | sed 's/^STREAM_//' | sed 's/_PORT$//' | sort -u)
+# 通过扫描所有以PROXY_开头且以_PORT结尾的变量，自动抓取所有的服务前缀
+PREFIXES=$(env | grep '^PROXY_.*_PORT=' | cut -d'=' -f1 | sed 's/^PROXY_//' | sed 's/_PORT$//' | sort -u)
 
 if [ -z "${PREFIXES}" ]; then
     log error 没有找到代理端口
@@ -22,8 +22,8 @@ fi
 # 遍历每一个识别到的服务前缀
 for PREFIX in ${PREFIXES}; do
     # 动态获取该前缀下的端口和名字
-    eval "LISTEN_PORT=\$STREAM_${PREFIX}_PORT"
-    eval "CUSTOM_NAME=\$STREAM_${PREFIX}_NAME"
+    eval "LISTEN_PORT=\$PROXY_${PREFIX}_PORT"
+    eval "CUSTOM_NAME=\$PROXY_${PREFIX}_NAME"
 
     if [ -z "${LISTEN_PORT}" ]; then
         continue
@@ -45,10 +45,10 @@ for PREFIX in ${PREFIXES}; do
     NODE_COUNT=0
 
     # 获取统一的节点端口（如果存在）
-    eval "UNIFIED_NODE_PORT=\$STREAM_${PREFIX}_NODE_PORT"
+    eval "UNIFIED_NODE_PORT=\$PROXY_${PREFIX}_NODE_PORT"
 
     # 获取所有属于当前服务前缀的变量名（排除NODE_PORT）
-    NODE_VARS=$(env | grep "^STREAM_${PREFIX}_NODE" | grep -v "^STREAM_${PREFIX}_NODE_PORT=" | cut -d'=' -f1)
+    NODE_VARS=$(env | grep "^PROXY_${PREFIX}_NODE" | grep -v "^PROXY_${PREFIX}_NODE_PORT=" | cut -d'=' -f1)
 
     for node_var in $NODE_VARS; do
         eval "VAL=\$${node_var}"
@@ -84,24 +84,27 @@ EOF
 
 server {
     listen ${LISTEN_PORT};
-    proxy_pass ${UPSTREAM_NAME};
+
+    location / {
+        proxy_pass http://${UPSTREAM_NAME};
 EOF
 
         # 扫描并处理额外的配置项
-        CONFIG_VARS=$(env | grep "^STREAM_${PREFIX}_CONFIG_" | cut -d'=' -f1)
+        CONFIG_VARS=$(env | grep "^PROXY_${PREFIX}_CONFIG_" | cut -d'=' -f1)
         for config_var in $CONFIG_VARS; do
             eval "CONFIG_VAL=\$${config_var}"
             if [ ! -z "$CONFIG_VAL" ]; then
-                # 提取配置键名：STREAM_DB_CONFIG_PROXY_PROTOCOL -> PROXY_PROTOCOL
-                CONFIG_KEY=$(echo "$config_var" | sed "s/^STREAM_${PREFIX}_CONFIG_//")
+                # 提取配置键名：PROXY_API_CONFIG_PROXY_SET_HEADER -> PROXY_SET_HEADER
+                CONFIG_KEY=$(echo "$config_var" | sed "s/^PROXY_${PREFIX}_CONFIG_//")
                 # 转换为小写并替换下划线
                 CONFIG_KEY_LOWER=$(echo "$CONFIG_KEY" | tr 'A-Z' 'a-z')
-                echo "    ${CONFIG_KEY_LOWER} ${CONFIG_VAL};" >> ${OUTPUT_CONF}
+                echo "        ${CONFIG_KEY_LOWER} ${CONFIG_VAL};" >> ${OUTPUT_CONF}
                 log info 添加额外配置 "prefix=${PREFIX}, key=${CONFIG_KEY_LOWER}, value=${CONFIG_VAL}"
             fi
         done
 
         cat << EOF >> ${OUTPUT_CONF}
+    }
 }
 
 EOF
