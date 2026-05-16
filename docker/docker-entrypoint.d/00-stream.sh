@@ -50,7 +50,7 @@ for PREFIX in ${PREFIXES}; do
     for node_var in $NODE_VARS; do
         eval "VAL=\$${node_var}"
         if [ ! -z "$VAL" ]; then
-            echo "        server $VAL;" >> $TEMP_UPSTREAM_BODY
+            echo "    server $VAL;" >> $TEMP_UPSTREAM_BODY
             NODE_COUNT=$((NODE_COUNT + 1))
         fi
     done
@@ -58,20 +58,20 @@ for PREFIX in ${PREFIXES}; do
     # 如果有节点，才真正写入最终的配置文件
     if [ $NODE_COUNT -gt 0 ]; then
         cat << EOF >> ${OUTPUT_CONF}
-    upstream ${UPSTREAM_NAME} {
+upstream ${UPSTREAM_NAME} {
 EOF
         cat $TEMP_UPSTREAM_BODY >> ${OUTPUT_CONF}
         cat << EOF >> ${OUTPUT_CONF}
-    }
+}
 
-    server {
-        listen ${LISTEN_PORT};
-        proxy_pass ${UPSTREAM_NAME};
+server {
+    listen ${LISTEN_PORT};
+    proxy_pass ${UPSTREAM_NAME};
 
-        # 生产调优参数
-        proxy_timeout 10m;
-        proxy_connect_timeout 5s;
-    }
+    # 生产调优参数
+    proxy_timeout 10m;
+    proxy_connect_timeout 5s;
+}
 
 EOF
         log info 成功生成配置 "port=$LISTEN_PORT, name=$UPSTREAM_NAME, count=$NODE_COUNT"
