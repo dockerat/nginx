@@ -1,7 +1,5 @@
 #!/bin/sh
 
-CODE=0
-EXIT=false
 OUTPUT_CONF="/etc/nginx/proxy.d/auto.conf"
 log info 开始生成配置文件 "output=${OUTPUT_CONF}"
 
@@ -9,14 +7,8 @@ log info 开始生成配置文件 "output=${OUTPUT_CONF}"
 PREFIXES=$(env | grep '^PROXY_.*_PORT=' | cut -d'=' -f1 | sed 's/^PROXY_//' | sed 's/_PORT$//' | sort -u)
 
 if [ -z "${PREFIXES}" ]; then
-    log error 没有找到代理端口
-    echo "}" >> ${OUTPUT_CONF}
-
-    CODE=0
-    EXIT=true
-fi
-if [ "${EXIT}" = "true" ]; then
-    exit ${CODE}
+    log info 没有找到PROXY_配置，跳过
+    exit 0
 fi
 
 # 遍历每一个识别到的服务前缀

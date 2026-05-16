@@ -3,10 +3,10 @@ ARG BUILDPLATFORM
 
 FROM --platform=$TARGETPLATFORM docker.1ms.run/library/nginx:1.31.0-alpine-slim AS builder
 
-ARG VERSION=1
-COPY docker /docker
 RUN wget --quiet --output-document=/docker/usr/bin/log https://gitee.com/storezhang/script/raw/main/core/log.sh
 RUN chmod +x /docker/usr/bin/log
+
+COPY docker /docker
 RUN chmod +x /docker/docker-entrypoint.d/*
 
 
