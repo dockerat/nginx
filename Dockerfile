@@ -1,7 +1,7 @@
 ARG TARGETPLATFORM
 ARG BUILDPLATFORM
 
-FROM --platform=$TARGETPLATFORM docker.1ms.run/library/nginx:1.29.2-alpine-slim- AS builder
+FROM --platform=$TARGETPLATFORM docker.1ms.run/library/nginx:1.29.2-alpine-slim AS builder
 
 ARG VERSION=1
 COPY docker /docker
