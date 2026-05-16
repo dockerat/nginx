@@ -68,6 +68,8 @@ server {
     listen ${LISTEN_PORT};
     proxy_pass ${UPSTREAM_NAME};
 
+    proxy_protocol on;
+
     # 生产调优参数
     proxy_timeout 10m;
     proxy_connect_timeout 5s;
