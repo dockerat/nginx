@@ -39,6 +39,21 @@ for PREFIX in ${PREFIXES}; do
     # 获取统一的节点端口（如果存在）
     eval "UNIFIED_NODE_PORT=\$STREAM_${PREFIX}_NODE_PORT"
 
+    # 获取upstream选项配置
+    eval "UPSTREAM_MAX_FAILS=\$STREAM_${PREFIX}_UPSTREAM_OPTIONS_MAX"
+    eval "UPSTREAM_FAIL_TIMEOUT=\$STREAM_${PREFIX}_UPSTREAM_OPTIONS_TIMEOUT"
+
+    # 构建upstream选项字符串
+    UPSTREAM_OPTIONS=""
+    if [ ! -z "$UPSTREAM_MAX_FAILS" ]; then
+        UPSTREAM_OPTIONS="${UPSTREAM_OPTIONS} max_fails=${UPSTREAM_MAX_FAILS}"
+        log info 配置max_fails "prefix=${PREFIX}, max_fails=${UPSTREAM_MAX_FAILS}"
+    fi
+    if [ ! -z "$UPSTREAM_FAIL_TIMEOUT" ]; then
+        UPSTREAM_OPTIONS="${UPSTREAM_OPTIONS} fail_timeout=${UPSTREAM_FAIL_TIMEOUT}"
+        log info 配置fail_timeout "prefix=${PREFIX}, fail_timeout=${UPSTREAM_FAIL_TIMEOUT}"
+    fi
+
     # 获取所有属于当前服务前缀的变量名（排除NODE_PORT）
     NODE_VARS=$(env | grep "^STREAM_${PREFIX}_NODE" | grep -v "^STREAM_${PREFIX}_NODE_PORT=" | cut -d'=' -f1)
 
@@ -49,15 +64,15 @@ for PREFIX in ${PREFIXES}; do
             case "$VAL" in
                 *:*)
                     # 已包含端口，直接使用
-                    echo "    server $VAL;" >> $TEMP_UPSTREAM_BODY
+                    echo "    server $VAL${UPSTREAM_OPTIONS};" >> $TEMP_UPSTREAM_BODY
                     ;;
                 *)
                     # 未包含端口，使用统一端口
                     if [ ! -z "$UNIFIED_NODE_PORT" ]; then
-                        echo "    server ${VAL}:${UNIFIED_NODE_PORT};" >> $TEMP_UPSTREAM_BODY
+                        echo "    server ${VAL}:${UNIFIED_NODE_PORT}${UPSTREAM_OPTIONS};" >> $TEMP_UPSTREAM_BODY
                     else
                         log warn 节点未指定端口且无统一端口 "node=${node_var}, value=${VAL}"
-                        echo "    server $VAL;" >> $TEMP_UPSTREAM_BODY
+                        echo "    server $VAL${UPSTREAM_OPTIONS};" >> $TEMP_UPSTREAM_BODY
                     fi
                     ;;
             esac
