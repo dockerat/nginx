@@ -1,0 +1,11 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "一键远程打包并运行",
+      "type": "extensionHost",
+      "request": "launch",
+      "preLaunchTask": "Remote Docker Build"
+    }
+  ]
+}

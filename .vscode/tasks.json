@@ -1,0 +1,170 @@
+{
+  "version": "2.0.0",
+  "options": {
+    "env": {
+      "CFG_USER": "storezhang",
+      "CFG_REMOTE": "192.168.102.10",
+      "CFG_IMAGE": "ccr.ccs.tencentyun.com/dockerat/nginx:latest",
+      "CFG_CONTAINER": "temp-cat-container",
+      "CFG_FILEPATH": "/etc/nginx/stream.d/auto.conf"
+    }
+  },
+  "tasks": [
+    {
+      "label": "docker-context-create",
+      "type": "shell",
+      "command": "docker",
+      "args": [
+        "context",
+        "rm", "temp-remote-box", "-f"
+      ],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      }
+    },
+    { // 临时删除后的真正创建放在这里，确保干净
+      "label": "docker-context-init",
+      "type": "shell",
+      "command": "docker",
+      "args": [
+        "context",
+        "create", "temp-remote-box",
+        "--docker", "host=ssh://$CFG_USER@$CFG_REMOTE"
+      ],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "docker-build-execute",
+      "type": "shell",
+      "command": "docker",
+      "args": [
+        "--context", "temp-remote-box",
+        "build", "-t", "$CFG_IMAGE",
+        "."
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    { // 专门用于前置强杀的子任务
+      "label": "pre-cleanup-container",
+      "type": "shell",
+      "command": "docker",
+      "args": [
+        "--context", "temp-remote-box",
+        "rm", "$CFG_CONTAINER", "-f"
+      ],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "docker-container-create",
+      "type": "shell",
+      "command": "docker",
+      "args": [
+        "--context", "temp-remote-box",
+        "run","-d", "--rm",
+        "--name", "$CFG_CONTAINER",
+        "--env-file", ".vscode/container.env.simplified",
+        "$CFG_IMAGE"
+      ],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "docker-container-cp",
+      "type": "shell",
+      "command": "docker",
+      "args": [
+        "--context", "temp-remote-box",
+        "cp", "$CFG_CONTAINER:$CFG_FILEPATH", "./auto.conf.temp"
+      ],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      }
+    },
+    { // 🌟 使用结构安全调用记事本并阻塞等待
+      "label": "open-notepad-and-wait",
+      "command": "notepad",
+      "args": [
+        "auto.conf.temp"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": true
+      }
+    },
+    { // 🌟 删除远程容器的独立微小任务
+      "label": "docker-container-rm",
+      "type": "shell",
+      "command": "docker",
+      "args": [
+        "--context", "temp-remote-box",
+        "rm", "$CFG_CONTAINER", "-f"
+      ],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      }
+    },
+    { // 🌟 删除上下文隧道的独立微小任务
+      "label": "docker-context-rm",
+      "type": "shell",
+      "command": "docker",
+      "args": [
+        "context",
+        "rm", "temp-remote-box", "-f"
+      ],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      }
+    },
+    { // 🌟 粉碎本地文件的物理任务
+      "label": "local-file-rm",
+      "type": "shell",
+      "command": "rm",
+      "args": [
+        "-f",
+        "./auto.conf.temp"
+      ],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      }
+    },
+    { // 总控制流流水线（用严密的原子顺序驱动所有精简任务）
+      "label": "Remote Docker Build",
+      "dependsOn": [
+        "docker-context-create",
+        "docker-context-init",
+        "docker-build-execute",
+        "pre-cleanup-container",
+        "docker-container-create",
+        "docker-container-cp",
+        "open-notepad-and-wait",
+        "docker-container-rm",
+        "docker-context-rm",
+        "local-file-rm"
+      ],
+      "dependsOrder": "sequence",
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": true
+      }
+    }
+  ]
+}

@@ -1,7 +1,16 @@
 {
   "permissions": {
     "allow": [
-      "Bash(rtk ls *)"
+      "Bash(rtk ls *)",
+      "Bash(sh -n docker/docker-entrypoint.d/00-stream.sh)",
+      "Bash(chmod +x test-config.sh)",
+      "Bash(sh test-config.sh)",
+      "Bash(sh test-simplified.sh)",
+      "Bash(rm -f test-config.sh test-simplified.sh /tmp/test-stream.sh /tmp/test-stream-simplified.sh)",
+      "Bash(docker --context temp-remote-box run --rm --env-file .vscode/container.env.simplified ccr.ccs.tencentyun.com/dockerat/nginx:latest cat /etc/nginx/stream.d/auto.conf)"
+    ],
+    "additionalDirectories": [
+      "\\tmp"
     ]
   }
 }

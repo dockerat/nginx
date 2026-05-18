@@ -1,7 +1,7 @@
 ARG TARGETPLATFORM
 ARG BUILDPLATFORM
 
-FROM --platform=$TARGETPLATFORM docker.1ms.run/library/nginx:1.31.0-alpine-slim AS builder
+FROM docker.1ms.run/library/nginx:1.31.0-alpine-slim AS builder
 
 RUN mkdir --parent /docker/usr/bin
 RUN wget --quiet --output-document=/docker/usr/bin/log https://gitee.com/storezhang/script/raw/main/core/log.sh
@@ -11,7 +11,7 @@ COPY docker /docker
 RUN chmod +x /docker/docker-entrypoint.d/*
 
 
-FROM --platform=$TARGETPLATFORM docker.1ms.run/library/nginx:1.31.0-alpine-slim
+FROM docker.1ms.run/library/nginx:1.31.0-alpine-slim
 
 LABEL author="storezhang<华寅>" \
     email="storezhang@gmail.com" \
