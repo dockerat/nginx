@@ -2,8 +2,8 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "一键远程打包并运行",
-      "type": "extensionHost",
+      "name": "打包运行",
+      "type": "node",
       "request": "launch",
       "preLaunchTask": "Remote Docker Build"
     }

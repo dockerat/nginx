@@ -5,7 +5,7 @@
       "CFG_USER": "storezhang",
       "CFG_REMOTE": "192.168.102.10",
       "CFG_IMAGE": "ccr.ccs.tencentyun.com/dockerat/nginx:latest",
-      "CFG_CONTAINER": "temp-cat-container",
+      "CFG_CONTAINER": "${workspaceFolderBasename}-container",
       "CFG_FILEPATH": "/etc/nginx/stream.d/auto.conf"
     }
   },
@@ -62,6 +62,9 @@
       "presentation": {
         "reveal": "silent",
         "panel": "shared"
+      },
+      "runOptions": {
+        "reevaluateOnRerun": true
       }
     },
     {
@@ -70,7 +73,8 @@
       "command": "docker",
       "args": [
         "--context", "temp-remote-box",
-        "run","-d", "--rm",
+        "run","-d",
+
         "--name", "$CFG_CONTAINER",
         "--env-file", ".vscode/container.env.simplified",
         "$CFG_IMAGE"
@@ -95,6 +99,7 @@
     },
     { // 🌟 使用结构安全调用记事本并阻塞等待
       "label": "open-notepad-and-wait",
+      "type": "shell",
       "command": "notepad",
       "args": [
         "auto.conf.temp"
@@ -166,5 +171,8 @@
         "focus": true
       }
     }
-  ]
+  ],
+  "runOptions": {
+    "onBuildErrors": "ignore"
+  }
 }

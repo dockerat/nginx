@@ -3,6 +3,22 @@
 OUTPUT_CONF="/etc/nginx/stream.d/auto.conf"
 log info 开始生成配置文件 "output=${OUTPUT_CONF}"
 
+# 辅助函数：判断布尔值（支持 true/false/on/off）
+is_enabled() {
+    case "$1" in
+        true|TRUE|on|ON|1)
+            return 0
+            ;;
+        false|FALSE|off|OFF|0)
+            return 1
+            ;;
+        *)
+            # 默认返回 true（启用）
+            return 0
+            ;;
+    esac
+}
+
 # 通过扫描所有以STREAM_开头且以_PORT结尾的变量，自动抓取所有的服务前缀
 # 排除 STREAM_*_NODE_PORT 和 STREAM_NODE_* 等非服务配置
 PREFIXES=$(env | grep '^STREAM_.*_PORT=' | grep -v '_NODE_PORT=' | grep -v '^STREAM_NODE_' | grep -v '^STREAM_CONFIG_' | cut -d'=' -f1 | sed 's/^STREAM_//' | sed 's/_PORT$//' | sort -u)
@@ -40,14 +56,20 @@ for PREFIX in ${PREFIXES}; do
     # 获取统一的节点端口（如果存在）
     eval "UNIFIED_NODE_PORT=\$STREAM_${PREFIX}_NODE_PORT"
 
-    # 获取选项配置（优先使用具体配置，否则使用全局默认）
+    # 检查是否启用 NODE_OPTIONS 扩展（默认启用）
+    eval "NODE_OPTIONS_EXTENDS=\$STREAM_${PREFIX}_NODE_OPTIONS_EXTENDS"
+    if [ -z "$NODE_OPTIONS_EXTENDS" ]; then
+        NODE_OPTIONS_EXTENDS="true"
+    fi
+
+    # 获取选项配置（优先使用具体配置，如果启用扩展则回退到全局默认）
     eval "NODE_MAX_FAILS=\$STREAM_${PREFIX}_NODE_OPTIONS_MAX"
-    if [ -z "$NODE_MAX_FAILS" ]; then
+    if [ -z "$NODE_MAX_FAILS" ] && is_enabled "$NODE_OPTIONS_EXTENDS"; then
         NODE_MAX_FAILS="$STREAM_NODE_OPTIONS_MAX"
     fi
 
     eval "NODE_FAIL_TIMEOUT=\$STREAM_${PREFIX}_NODE_OPTIONS_TIMEOUT"
-    if [ -z "$NODE_FAIL_TIMEOUT" ]; then
+    if [ -z "$NODE_FAIL_TIMEOUT" ] && is_enabled "$NODE_OPTIONS_EXTENDS"; then
         NODE_FAIL_TIMEOUT="$STREAM_NODE_OPTIONS_TIMEOUT"
     fi
 
@@ -63,7 +85,7 @@ for PREFIX in ${PREFIXES}; do
     fi
 
     # 获取所有属于当前服务前缀的变量名
-    NODE_VARS=$(env | grep "^STREAM_${PREFIX}_NODE" | grep -v "^STREAM_${PREFIX}_NODE_PORT=" | grep -v "^STREAM_${PREFIX}_NODE_OPTIONS_" | cut -d'=' -f1)
+    NODE_VARS=$(env | grep "^STREAM_${PREFIX}_NODE" | grep -v "^STREAM_${PREFIX}_NODE_PORT=" | grep -v "^STREAM_${PREFIX}_NODE_OPTIONS_" | grep -v "^STREAM_${PREFIX}_NODE_OPTIONS_EXTENDS=" | cut -d'=' -f1)
 
     for node_var in $NODE_VARS; do
         eval "VAL=\$${node_var}"
@@ -136,8 +158,14 @@ server {
 EOF
 
         # 扫描并处理额外的配置项
+        # 检查是否启用 CONFIG 扩展（默认启用）
+        eval "CONFIG_EXTENDS=\$STREAM_${PREFIX}_CONFIG_EXTENDS"
+        if [ -z "$CONFIG_EXTENDS" ]; then
+            CONFIG_EXTENDS="true"
+        fi
+
         # 先收集具体服务的配置
-        CONFIG_VARS=$(env | grep "^STREAM_${PREFIX}_CONFIG_" | cut -d'=' -f1)
+        CONFIG_VARS=$(env | grep "^STREAM_${PREFIX}_CONFIG_" | grep -v "^STREAM_${PREFIX}_CONFIG_EXTENDS=" | cut -d'=' -f1)
         APPLIED_CONFIGS=""
 
         for config_var in $CONFIG_VARS; do
@@ -154,28 +182,32 @@ EOF
             fi
         done
 
-        # 再应用全局默认配置（仅当具体服务未配置时）
-        GLOBAL_CONFIG_VARS=$(env | grep "^STREAM_CONFIG_" | cut -d'=' -f1)
-        for global_config_var in $GLOBAL_CONFIG_VARS; do
-            eval "GLOBAL_CONFIG_VAL=\$${global_config_var}"
-            if [ ! -z "$GLOBAL_CONFIG_VAL" ]; then
-                # 提取配置键名：STREAM_CONFIG_PROXY_PROTOCOL -> PROXY_PROTOCOL
-                GLOBAL_CONFIG_KEY=$(echo "$global_config_var" | sed "s/^STREAM_CONFIG_//")
+        # 再应用全局默认配置（仅当具体服务未配置且启用扩展时）
+        if is_enabled "$CONFIG_EXTENDS"; then
+            GLOBAL_CONFIG_VARS=$(env | grep "^STREAM_CONFIG_" | cut -d'=' -f1)
+            for global_config_var in $GLOBAL_CONFIG_VARS; do
+                eval "GLOBAL_CONFIG_VAL=\$${global_config_var}"
+                if [ ! -z "$GLOBAL_CONFIG_VAL" ]; then
+                    # 提取配置键名：STREAM_CONFIG_PROXY_PROTOCOL -> PROXY_PROTOCOL
+                    GLOBAL_CONFIG_KEY=$(echo "$global_config_var" | sed "s/^STREAM_CONFIG_//")
 
-                # 检查该配置是否已被具体服务配置覆盖
-                case "$APPLIED_CONFIGS" in
-                    *" ${GLOBAL_CONFIG_KEY} "* | *" ${GLOBAL_CONFIG_KEY}" | "${GLOBAL_CONFIG_KEY} "*)
-                        log info 跳过全局默认配置 "prefix=${PREFIX}, key=${GLOBAL_CONFIG_KEY}, reason=已有具体配置"
-                        ;;
-                    *)
-                        # 转换为小写并替换下划线
-                        GLOBAL_CONFIG_KEY_LOWER=$(echo "$GLOBAL_CONFIG_KEY" | tr 'A-Z' 'a-z')
-                        echo "    ${GLOBAL_CONFIG_KEY_LOWER} ${GLOBAL_CONFIG_VAL};" >> ${OUTPUT_CONF}
-                        log info 添加全局默认配置 "prefix=${PREFIX}, key=${GLOBAL_CONFIG_KEY_LOWER}, value=${GLOBAL_CONFIG_VAL}"
-                        ;;
-                esac
-            fi
-        done
+                    # 检查该配置是否已被具体服务配置覆盖
+                    case "$APPLIED_CONFIGS" in
+                        *" ${GLOBAL_CONFIG_KEY} "* | *" ${GLOBAL_CONFIG_KEY}" | "${GLOBAL_CONFIG_KEY} "*)
+                            log info 跳过全局默认配置 "prefix=${PREFIX}, key=${GLOBAL_CONFIG_KEY}, reason=已有具体配置"
+                            ;;
+                        *)
+                            # 转换为小写并替换下划线
+                            GLOBAL_CONFIG_KEY_LOWER=$(echo "$GLOBAL_CONFIG_KEY" | tr 'A-Z' 'a-z')
+                            echo "    ${GLOBAL_CONFIG_KEY_LOWER} ${GLOBAL_CONFIG_VAL};" >> ${OUTPUT_CONF}
+                            log info 添加全局默认配置 "prefix=${PREFIX}, key=${GLOBAL_CONFIG_KEY_LOWER}, value=${GLOBAL_CONFIG_VAL}"
+                            ;;
+                    esac
+                fi
+            done
+        else
+            log info 已禁用全局配置扩展 "prefix=${PREFIX}"
+        fi
 
         cat << EOF >> ${OUTPUT_CONF}
 }
