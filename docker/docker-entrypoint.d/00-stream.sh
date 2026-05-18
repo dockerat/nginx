@@ -13,7 +13,6 @@ is_enabled() {
             return 1
             ;;
         *)
-            # 默认返回 true（启用）
             return 0
             ;;
     esac
