@@ -3,6 +3,13 @@
 OUTPUT_CONF="/etc/nginx/proxy.d/auto.conf"
 log info 开始生成配置文件 "output=${OUTPUT_CONF}"
 
+if [ -f "${OUTPUT_CONF}" ]; then
+    log warn 清理旧配置文件 "filename=${OUTPUT_CONF}"
+    rm -f "$OUTPUT_CONF"
+else
+    log info 无旧配置文件，继续执行 "filename=${OUTPUT_CONF}"
+fi
+
 # 辅助函数：判断布尔值（支持 true/false/on/off）
 is_enabled() {
     case "$1" in
