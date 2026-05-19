@@ -5,7 +5,12 @@
       "name": "打包运行",
       "type": "node",
       "request": "launch",
-      "preLaunchTask": "Remote Docker Build"
+      "preLaunchTask": "Remote Docker Build",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "-e",
+        "console.log('自动退出调试状态')"
+      ]
     }
   ]
 }
